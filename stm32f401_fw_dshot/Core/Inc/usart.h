@@ -32,19 +32,16 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern UART_HandleTypeDef huart2;
-
 extern UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN Private defines */
+void uart_print(char* str);
 
 /* USER CODE END Private defines */
 
-void MX_USART2_UART_Init(void);
 void MX_USART6_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-void  USART2_RX_Callback(void);
 
 /* USER CODE END Prototypes */
 

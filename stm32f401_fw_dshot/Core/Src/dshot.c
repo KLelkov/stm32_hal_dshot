@@ -30,13 +30,13 @@ static void dshot_prepare_dmabuffer(uint32_t* motor_dmabuffer, uint16_t value);
 static void dshot_dma_start();
 static void dshot_enable_dma_request();
 
-static uint8_t reverse_dshot = 0;
+//static uint8_t reverse_dshot = 0;
 
 
 /* Functions */
-void dshot_init(dshot_type_e dshot_type, uint8_t reversed)
+void dshot_init(dshot_type_e dshot_type)
 {
-	reverse_dshot = reversed;
+//	reverse_dshot = reversed;
 	dshot_set_timer(dshot_type);
 	dshot_put_tc_callback_function();
 	dshot_start_pwm();
@@ -88,16 +88,16 @@ static void dshot_dma_tc_callback(DMA_HandleTypeDef *hdma)
 {
 	TIM_HandleTypeDef *htim = (TIM_HandleTypeDef *)((DMA_HandleTypeDef *)hdma)->Parent;
 
-	if(hdma == htim->hdma[TIM_DMA_ID_CC4])
+	if(hdma == htim->hdma[TIM_DMA_ID_CC1])
 	{
-		__HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC4);
+		__HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC1);
 	}
 }
 
 static void dshot_put_tc_callback_function()
 {
 	// TIM_DMA_ID_CCx depends on timer channel
-	MOTOR_1_TIM->hdma[TIM_DMA_ID_CC4]->XferCpltCallback = dshot_dma_tc_callback;
+	MOTOR_1_TIM->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = dshot_dma_tc_callback;
 }
 
 static void dshot_start_pwm()
@@ -158,10 +158,10 @@ static void dshot_prepare_dmabuffer(uint32_t* motor_dmabuffer, uint16_t value)
 
 static void dshot_dma_start()
 {
-	HAL_DMA_Start_IT(MOTOR_1_TIM->hdma[TIM_DMA_ID_CC4], (uint32_t)motor1_dmabuffer, (uint32_t)&MOTOR_1_TIM->Instance->CCR4, DSHOT_DMA_BUFFER_SIZE);
+	HAL_DMA_Start_IT(MOTOR_1_TIM->hdma[TIM_DMA_ID_CC1], (uint32_t)motor1_dmabuffer, (uint32_t)&MOTOR_1_TIM->Instance->CCR1, DSHOT_DMA_BUFFER_SIZE);
 }
 
 static void dshot_enable_dma_request()
 {
-	__HAL_TIM_ENABLE_DMA(MOTOR_1_TIM, TIM_DMA_CC4);
+	__HAL_TIM_ENABLE_DMA(MOTOR_1_TIM, TIM_DMA_CC1);
 }

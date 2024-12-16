@@ -20,7 +20,7 @@
 // Timer Clock
 #define TIMER_CLOCK				84000000	// Hz
 
-// MOTOR 1 (PA3) - TIM5 Channel 4, DMA1 Stream 3
+// MOTOR 1 (PA3) - TIM2 Channel 1, DMA1 Stream 5
 #define MOTOR_1_TIM             (&htim2)
 #define MOTOR_1_TIM_CHANNEL     TIM_CHANNEL_1
 
@@ -59,7 +59,7 @@ typedef enum
 
 
 /* Functions */
-void dshot_init(dshot_type_e dshot_type, uint8_t reversed);
+void dshot_init(dshot_type_e dshot_type);
 void dshot_write(uint16_t motor_value);
 
 

@@ -26,7 +26,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "dshot.h"
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,73 +48,25 @@
 /* USER CODE BEGIN PV */
 uint16_t my_motor_value = 0;
 
-
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
-
-void initSysTick(void) {
-    // Assuming system clock is 72 MHz
-    SysTick_Config(SystemCoreClock / 1000000); // Configure for 1 us ticks
-}
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#define DMA_SIZE 32
-volatile uint32_t captureBuffer[DMA_SIZE]; // Buffer for captured values
-volatile uint32_t captureIndex = 0; // Current index in buffer
-volatile float dutyCycle = 0;
-volatile float frequency = 0;
-
-
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	if (GPIO_Pin == B1_Pin)
-	{
-		HAL_GPIO_TogglePin (GPIOA, GPIO_PIN_5);
-		my_motor_value = (my_motor_value + 50) % 2000;
-		uint8_t MSG[65] = {'\0'};
-	  sprintf(MSG, "Button pressed\n");
-	  HAL_UART_Transmit(&huart6, MSG, sizeof(MSG), 30);
-
-	}
-	else if (GPIO_Pin == GPIO_PIN_0)
-	{
-		int a = 0;
-	}
+    if (GPIO_Pin == B1_Pin)
+    {
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);  // Toggle LED
+		my_motor_value = (my_motor_value + 50) % 2000;  // Loop through thrust values
+		uart_print("Button pressed\n");  // Send debug feedback
+    }
 }
-
-
-// uart read
-//void HAL_TIM_IC_DMA_TransferComplete(TIM_HandleTypeDef *htim) {
-//    if (htim->Instance == TIM5) {
-//        // Process captured values
-//    	char MSG[DMA_SIZE * 3 + 20] = {'\0'};
-//		  char *ptr = MSG;
-//        for (uint32_t i = 0; i < DMA_SIZE; i++) {
-//            // Calculate duty cycle and frequency based on captured values
-//            // Assuming captureBuffer[i] contains rising edges
-//            // You can implement your logic here
-//
-//		  ptr += sprintf(ptr, "%u", captureBuffer[i]);
-//		  // Optionally add a separator if it's not the last element
-//		  if (i < DMA_SIZE - 1) {
-//			  ptr += sprintf(ptr, " "); // Add a comma and space as a separator
-//		  }
-//
-//        }
-//        ptr += sprintf(ptr, "\n");
-//        	//		  sprintf(MSG, "tick: %lu\n", duty);
-//        			  HAL_UART_Transmit(&huart6, MSG, ptr - MSG, 150);
-//        			memset(captureBuffer, 0, DMA_SIZE);
-//    }
-//}
 
 /* USER CODE END 0 */
 
@@ -149,25 +100,18 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_TIM2_Init();
+  MX_TIM5_Init();
   MX_USART6_UART_Init();
-  MX_TIM3_Init();
-  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  dshot_init(DSHOT300, 0);
 
-  uint8_t MSG[65] = {'\0'};
-  sprintf(MSG, "DSHOT mode: %d\n", 300);
-  HAL_UART_Transmit(&huart6, MSG, sizeof(MSG), 30);
-  HAL_Delay(500);
+  dshot_init(DSHOT150);
+  uart_print("DSHOT-300\n");
 
-//  HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_1); // Primary channel - rising edge
-//  HAL_TIM_IC_Start(&htim5, TIM_CHANNEL_2);    // Secondary channel - falling edge
-
-//  HAL_TIM_Base_Start_IT(&htim3);
-  uint32_t counter = 0;
-//  HAL_UART_Receive_IT(&huart2, &received_byte, 1); // Start receiving data
-
-
+  if (reverse_dshot != 0)
+  {
+	  HAL_TIM_IC_Start_IT(&htim5, TIM_CHANNEL_1);  // Primary channel - falling edge
+	  HAL_TIM_IC_Start(&htim5, TIM_CHANNEL_2);  // Secondary channel - rising edge
+  }
 
   /* USER CODE END 2 */
 
@@ -175,33 +119,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	dshot_write(my_motor_value);
+	HAL_Delay(1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  // transmit new dshot signals
-	  dshot_write(my_motor_value);
-//	  uint8_t MSG[65] = {'\0'};
-//	  sprintf(MSG, "tick: %d\n", microseconds);
-//	  HAL_UART_Transmit(&huart6, MSG, sizeof(MSG), 30);
-	  HAL_Delay(1);
-
-//	  counter++;
-//	  if (counter == 1000)
-//	  {
-//		  counter = 0;
-//		  uint8_t received_data[10] = {0}; // Adjust size as necessary
-//		        HAL_UART_Receive_IT(&huart2, received_data, sizeof(received_data));
-//
-//		        uint8_t MSG2[20] = {'\0'};
-//		            char *ptr = MSG2;
-//		        for (size_t i = 0; i < 9; i++)
-//		    	{
-//		    	  ptr += sprintf(ptr, "%d", received_data[i]);
-//		    	  ptr += sprintf(ptr, " "); // Add a comma and space as a separator
-//		    	}
-//		        ptr += sprintf(ptr, "\n"); // Add a comma and space as a separator
-//		    	HAL_UART_Transmit(&huart6, MSG2, sizeof(MSG2), 30);
-//	  }
   }
   /* USER CODE END 3 */
 }
