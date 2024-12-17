@@ -76,6 +76,8 @@ __KEYWORD__ - `DSHOT` `BLHeli_32 ESC` `BLDC` `STM32 HAL` `TIMER` `PWM` `DMA`
 
 ### 5. Telemetry example
 
+I've printed the pulse width % over the uart for debug. Didn't do any actual decoding, but that should not be a problem once you have all the bits (pulses).
+
 ![dshot](https://github.com/KLelkov/stm32_hal_dshot/blob/main/dshot.gif?raw=true)
 
 ### 6. Arming sequence
@@ -95,45 +97,32 @@ __KEYWORD__ - `DSHOT` `BLHeli_32 ESC` `BLDC` `STM32 HAL` `TIMER` `PWM` `DMA`
 
   For telemetry you will need uint32 pin (supports counting up to **4294967295**). On my board this is TIM5.
 
-  ![image](https://user-images.githubusercontent.com/48342925/124617628-0e46d480-deb2-11eb-8aad-5a72027d4d35.png)
-  ![image](https://user-images.githubusercontent.com/48342925/124617830-37fffb80-deb2-11eb-93e4-341fbcec2ac5.png)
+  ![image](https://raw.githubusercontent.com/KLelkov/stm32_hal_dshot/refs/heads/main/Images/tim2.png)
+
+  ![tim5_setup](https://raw.githubusercontent.com/KLelkov/stm32_hal_dshot/refs/heads/main/Images/tim5%20setup.png)
+
+  ![tim5_notelem](https://raw.githubusercontent.com/KLelkov/stm32_hal_dshot/refs/heads/main/Images/tim5%20no%20telem.png)
 
 - DMA is definitely needed for control. And I'm not sure that it is needed for telemetry, but I've set it up just in case.
-![image](https://user-images.githubusercontent.com/48342925/124618725-fde32980-deb2-11eb-842a-e863431dd1b8.png)
+  ![image](https://raw.githubusercontent.com/KLelkov/stm32_hal_dshot/refs/heads/main/Images/dma%20tim2.png)
 
-
+  ![image](https://raw.githubusercontent.com/KLelkov/stm32_hal_dshot/refs/heads/main/Images/dma%20tim5.png)
 
 
 ## Example
 
 ### dshot.h
 - TIM5, TIM2 are 84 MHz
+
 - Motor IN - PA15, GND
+
 - Telemetry in - PA0
+
 - Since the control and telemetry are done over a single wire - we need to connect PA15 and PA0 together
+
 - Uart6 - PC7 (I used this for debug only, so a single wire is enough), GND
-```c
-/* User Configuration */
-// Timer Clock
-#define TIMER_CLOCK				84000000	// 84MHz
 
-// MOTOR 1 (PA3) - TIM5 Channel 4, DMA1 Stream 3
-#define MOTOR_1_TIM             (&htim5)
-#define MOTOR_1_TIM_CHANNEL     TIM_CHANNEL_4
-
-// MOTOR 2 (PA2) - TIM2 Channel 3, DMA1 Stream 1
-#define MOTOR_2_TIM             (&htim2)
-#define MOTOR_2_TIM_CHANNEL     TIM_CHANNEL_3
-
-// MOTOR 3 (PA0) - TIM2 Channel 1, DMA1 Stream 5
-#define MOTOR_3_TIM             (&htim2)
-#define MOTOR_3_TIM_CHANNEL     TIM_CHANNEL_1
-
-// MOTOR 4 (PA1) - TIM5 Channel 2, DMA1 Stream 4
-#define MOTOR_4_TIM             (&htim5)
-#define MOTOR_4_TIM_CHANNEL     TIM_CHANNEL_2
-```
-
+  ![image](https://raw.githubusercontent.com/KLelkov/stm32_hal_dshot/refs/heads/main/Images/frequency.png)
 ### main.c
 - only contain dshot things
 
@@ -161,6 +150,15 @@ int main (void)
 
 Since the dshot telemetry comes at very fast speeds the STM controller may be unable to process all the pulses. For example my f401 board has 84 MHz processor and this was enough only to process dshot-150 and dshot-300 telemetry data. The higher rates dshot protocols are too fast for this board (my code takes too many operations between pulses).
 
+If you check the code - you can see that it is possible to cut the number of operations nearly in half by removing UART print. Then you can probably read DShot-600 telemetry with stm32f401 board.
+
 Keep in mind, that to receive the telemetry data - you need to send reversed dshot signal. This way the ESC will know to send you back telemetry data over the same wire.
 
 To configure this, you need to change one variable in code and one cubeMX setting.
+
+![image](https://raw.githubusercontent.com/KLelkov/stm32_hal_dshot/refs/heads/main/Images/reverse.png)
+
+![image](https://raw.githubusercontent.com/KLelkov/stm32_hal_dshot/refs/heads/main/Images/tim5%20telem.png)
+
+![image](https://raw.githubusercontent.com/KLelkov/stm32_hal_dshot/refs/heads/main/Images/telemetry.png)
+
