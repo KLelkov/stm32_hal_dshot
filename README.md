@@ -4,6 +4,10 @@ Modified library version. Main adjustments - added DShot-1200 support and bidire
 
 I've cut the 4 motors controls and kept the code for just a single motor for testing.
 
+Check out this guide on dshot, it has been a huge help!
+
+[dshot](https://brushlesswhoop.com/dshot-and-bidirectional-dshot/)
+
 ## Brief
 
 __Dshot is drone ESC digital protocol__   
