@@ -76,9 +76,7 @@ __KEYWORD__ - `DSHOT` `BLHeli_32 ESC` `BLDC` `STM32 HAL` `TIMER` `PWM` `DMA`
 
 ### 5. Telemetry example
 
-![dshot](https://imgur.com/a/dzym6XG.gif)
-
-
+![dshot](https://github.com/KLelkov/stm32_hal_dshot/blob/main/dshot.gif?raw=true)
 
 ### 6. Arming sequence
 
