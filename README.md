@@ -80,7 +80,7 @@ __KEYWORD__ - `DSHOT` `BLHeli_32 ESC` `BLDC` `STM32 HAL` `TIMER` `PWM` `DMA`
 
 ### 5. Telemetry example
 
-I've printed the pulse width % over the uart for debug. Didn't do any actual decoding, but that should not be a problem once you have all the bits (pulses).
+I've printed the pulse width % over the uart for debug. Didn't do any actual decoding, but that should not be a problem once you have all the bits (pulses). 33 value iis a pulse with 33% duty cycle (0) and 66 is a pulse with 66% duty cycle (1).
 
 ![dshot](https://github.com/KLelkov/stm32_hal_dshot/blob/main/dshot.gif?raw=true)
 
